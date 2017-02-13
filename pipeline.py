@@ -7,7 +7,7 @@ from image_processing import *
 src = np.float32([[220,720],[1110,720],[735,480],[554,480]])
 dst = np.float32([[320,720],[960,720],[960,0],[320,0]])
 # Try to guestimate pixel space to world space dimensions
-ym_per_pix = 30/720 # meters per pixel in y dimension (warped)
+ym_per_pix = 25/720 # meters per pixel in y dimension (warped)
 xm_per_pix = 3.7/640 # meters per pixel in x dimension (warped)
 # Calculate perspective transform matrices
 M = cv2.getPerspectiveTransform(src, dst)
@@ -70,10 +70,16 @@ def color_thresh(img):
     hls = cv2.morphologyEx(hls, cv2.MORPH_CLOSE, kernel)
     return hls
 
-def curve_rad(ylist, xlist, yeval):
+def curve_rad(ylist, xlist, y_eval):
     fit_cr = np.polyfit(ylist*ym_per_pix, xlist*xm_per_pix, 2)
     A = fit_cr[0]
     B = fit_cr[1]
-    radius = ((1 + (2*A*yeval*ym_per_pix + B)**2)**1.5) / np.absolute(2*A)
+    radius = ((1 + (2*A*y_eval*ym_per_pix + B)**2)**1.5) / np.absolute(2*A)
     return int(radius)
+
+def center_diff(left_fit, right_fit, bottom, midpoint):
+    l = left_fit[0]*bottom*bottom + left_fit[1]*bottom + left_fit[2]
+    r = right_fit[0]*bottom*bottom + right_fit[1]*bottom + right_fit[2]
+    lane_center = (l + r) // 2
+    return (lane_center - midpoint)*xm_per_pix
 
