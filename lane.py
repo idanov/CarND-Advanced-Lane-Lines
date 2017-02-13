@@ -21,6 +21,11 @@ def paint_lane(img, left_fit, right_fit, color=(0,255,0)):
 def draw_text(img, text, pos=(50, 50), color=(255,255,255)):
     cv2.putText(img, text, pos, cv2.FONT_HERSHEY_SIMPLEX, 1, color, 2)
 
+def draw_header(img, height=130):
+    header = img.copy()
+    cv2.rectangle(header,(0,0),(header.shape[1],height),color=(0,0,0),thickness=cv2.FILLED)
+    cv2.addWeighted(img, 0.5, header, 0.5, 0, img)
+
 def find_window_centroids(warped, win_width=80, win_height=80, margin=100, minpix=500):
     # Get endpoint and midpoint for convenience
     endpoint = warped.shape[1]
@@ -169,14 +174,12 @@ def draw_fitted_curve(warped, leftx, lefty, rightx, righty, margin=100):
 
 def draw_lane(undist, left_fit, right_fit, half_line = 20):
     lane_img = np.zeros_like(undist)
-    base_img = np.zeros_like(undist)
     translation = np.array([0,0,half_line])
-    paint_lane(base_img, left_fit, right_fit, color=(0,0x99,0xcc))
-    paint_lane(lane_img, left_fit-translation, left_fit+translation, color=(0,0,0xFF))
-    paint_lane(lane_img, right_fit-translation, right_fit+translation, color=(0,0,0xFF))
-    draw_curve(lane_img, (left_fit + right_fit) / 2, color = (0,0,0xAA), thickness=5)
-    blended = cv2.addWeighted(base_img, 1.0, lane_img, 1.0, 0.0)
-    blended = unwarp(blended)
-    out_img = cv2.addWeighted(undist, 1.0, blended, 0.7, 0.0)
+    paint_lane(lane_img, left_fit, right_fit, color=(0,0xFF,0))
+    paint_lane(lane_img, left_fit-translation, left_fit+translation, color=(0xFF,0,0))
+    paint_lane(lane_img, right_fit-translation, right_fit+translation, color=(0xFF,0,0))
+    draw_curve(lane_img, (left_fit + right_fit) / 2, color = (0xFF,0,0), thickness=5)
+    lane_img = unwarp(lane_img)
+    out_img = cv2.addWeighted(undist, 1.0, lane_img, 0.7, 0.0)
     return out_img
 

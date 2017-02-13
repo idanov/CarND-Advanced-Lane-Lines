@@ -70,8 +70,10 @@ def color_thresh(img):
     hls = cv2.morphologyEx(hls, cv2.MORPH_CLOSE, kernel)
     return hls
 
-def curve_rad(ylist, xlist, y_eval):
-    fit_cr = np.polyfit(ylist*ym_per_pix, xlist*xm_per_pix, 2)
+def curve_rad(leftx, lefty, rightx, righty, y_eval):
+    fit_cr_l = np.polyfit(lefty*ym_per_pix, leftx*xm_per_pix, 2)
+    fit_cr_r = np.polyfit(righty*ym_per_pix, rightx*xm_per_pix, 2)
+    fit_cr = (fit_cr_l + fit_cr_r) / 2
     A = fit_cr[0]
     B = fit_cr[1]
     radius = ((1 + (2*A*y_eval*ym_per_pix + B)**2)**1.5) / np.absolute(2*A)
@@ -81,5 +83,5 @@ def center_diff(left_fit, right_fit, bottom, midpoint):
     l = left_fit[0]*bottom*bottom + left_fit[1]*bottom + left_fit[2]
     r = right_fit[0]*bottom*bottom + right_fit[1]*bottom + right_fit[2]
     lane_center = (l + r) // 2
-    return (lane_center - midpoint)*xm_per_pix
+    return (midpoint - lane_center)*xm_per_pix
 
