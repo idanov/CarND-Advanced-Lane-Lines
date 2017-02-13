@@ -19,7 +19,7 @@ def abs_sobel_thresh(gray, orient='x', sobel_kernel=3, thresh=(0, 255)):
     sobel = np.uint8(255 * sobel / np.max(sobel))
     # 4) Create a mask of 1's where the scaled gradient magnitude 
     binary_output = np.zeros_like(sobel)
-    binary_output[(sobel >= thresh[0]) & (sobel <= thresh[1])] = 1
+    binary_output[(sobel >= thresh[0]) & (sobel <= thresh[1])] = 255
             # is > thresh_min and < thresh_max
     # 5) Return this mask as your binary_output image
     return binary_output
@@ -35,7 +35,7 @@ def mag_thresh(gray, sobel_kernel=3, mag_thresh=(0, 255)):
     magn_scaled = np.uint8(255 * magn/np.max(magn))
     # 4) Create a binary mask where mag thresholds are met
     binary_output = np.zeros_like(magn_scaled)
-    binary_output[(magn_scaled >= mag_thresh[0]) & (magn_scaled <= mag_thresh[1])] = 1
+    binary_output[(magn_scaled >= mag_thresh[0]) & (magn_scaled <= mag_thresh[1])] = 255
     # 5) Return this mask as your binary_output image
     return binary_output
 
@@ -51,7 +51,7 @@ def dir_threshold(gray, sobel_kernel=3, thresh=(0, np.pi/2)):
     arctan = np.arctan2(abs_sobely, abs_sobelx)
     # 4) Create a binary mask where direction thresholds are met
     binary_output = np.zeros_like(arctan).astype(np.uint8)
-    binary_output[(arctan >= thresh[0]) & (arctan <= thresh[1])] = 1
+    binary_output[(arctan >= thresh[0]) & (arctan <= thresh[1])] = 255
     # 5) Return this mask as your binary_output image
     return binary_output
 
@@ -68,6 +68,6 @@ def hls_select(img, low_thresh=(0, 0, 0), high_thresh=(255,255,255)):
     s_idx = (S > low_thresh[2]) & (S <= high_thresh[2])
     # 4) Return a binary mask of the threshold result
     binary_output = np.zeros_like(H)
-    binary_output[h_idx & l_idx & s_idx] = 1
+    binary_output[h_idx & l_idx & s_idx] = 255
     return binary_output
 

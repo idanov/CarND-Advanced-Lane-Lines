@@ -47,14 +47,16 @@ def find_window_centroids(warped, win_width=80, win_height=80, margin=100, minpi
         conv_signal = np.convolve(window, histogram, mode="same")
         # Find the left centroid (fallback to a previous value on failure)
         l_peak = np.argmax(conv_signal[:midpoint])
-        if conv_signal[l_peak] > minpix:
+        if conv_signal[l_peak] > minpix and abs(l_center-l_peak) < 2*margin:
             l_center = l_peak - margin
-            l_center = l_center + np.argmax(histogram[l_center:l_center + 2 * margin])
+            subwindow = histogram[l_center:l_center + 2 * margin]
+            l_center = l_center + (np.argmax(subwindow) if subwindow.size > 0 else margin)
         # Find the right centroid (fallback to a previous value on failure)
         r_peak = np.argmax(conv_signal[midpoint:])
-        if conv_signal[midpoint + r_peak] > minpix:
+        if conv_signal[midpoint + r_peak] > minpix and abs(r_center-r_peak) < 2*margin:
             r_center = r_peak + midpoint - margin
-            r_center = r_center + np.argmax(histogram[r_center:r_center + 2 * margin])
+            subwindow = histogram[r_center:r_center + 2 * margin]
+            r_center = r_center + (np.argmax(subwindow) if subwindow.size > 0 else margin)
 
         # Update the midpoint
         midpoint = (l_center + r_center) // 2
@@ -180,6 +182,6 @@ def draw_lane(undist, left_fit, right_fit, half_line = 20):
     paint_lane(lane_img, right_fit-translation, right_fit+translation, color=(0xFF,0,0))
     draw_curve(lane_img, (left_fit + right_fit) / 2, color = (0xFF,0,0), thickness=5)
     lane_img = unwarp(lane_img)
-    out_img = cv2.addWeighted(undist, 1.0, lane_img, 0.7, 0.0)
+    out_img = cv2.addWeighted(undist, 1.0, lane_img, 0.6, 0.0)
     return out_img
 

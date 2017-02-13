@@ -23,6 +23,11 @@ def imread(fname):
     img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     return img
 
+def imwrite(fname, img):
+    if len(img.shape) > 2:
+        img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
+    cv2.imwrite(fname, img)
+
 def undistort(img):
     return cv2.undistort(img, mtx, dist, None, mtx)
 
