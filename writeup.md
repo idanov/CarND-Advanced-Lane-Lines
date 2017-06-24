@@ -21,25 +21,10 @@ The goals / steps of this project are the following:
 
 ### Writeup / README
 
-#### 1. Provide a Writeup / README that includes all the rubric points and how you addressed each one.  You can submit your writeup as markdown or pdf.  [Here](https://github.com/udacity/CarND-Advanced-Lane-Lines/blob/master/writeup_template.md) is a template writeup for this project you can use as a guide and a starting point.  
+#### 0. Provide a Writeup / README that includes all the rubric points and how you addressed each one.  You can submit your writeup as markdown or pdf.  [Here](https://github.com/udacity/CarND-Advanced-Lane-Lines/blob/master/writeup_template.md) is a template writeup for this project you can use as a guide and a starting point.  
 
 You're reading it!
 
-
-```python
-#importing some useful packages
-import matplotlib.pyplot as plt
-import matplotlib.image as mpimg
-import numpy as np
-import cv2
-import glob
-import pickle
-from moviepy.editor import VideoFileClip
-from image_processing import *
-from pipeline import *
-
-%matplotlib inline
-```
 
 #### 1. Briefly state how you computed the camera matrix and distortion coefficients. Provide an example of a distortion corrected calibration image.
 
@@ -54,15 +39,6 @@ I then used the output `objpoints` and `imgpoints` to compute the camera calibra
 ```python
 img = imread('./camera_cal/calibration1.jpg')
 undist = undistort(img)
-
-plt.figure(figsize=(11.5,8))
-plt.subplot(121)
-plt.axis('off')
-plt.imshow(img)
-plt.subplot(122)
-plt.axis('off')
-plt.imshow(undist)
-plt.show()
 ```
 
 
@@ -84,15 +60,6 @@ To demonstrate this step, I apply the distortion correction to one of the test i
 ```python
 img = imread('./test_images/test1.jpg')
 undist = undistort(img)
-
-plt.figure(figsize=(11.5,8))
-plt.subplot(121)
-plt.axis('off')
-plt.imshow(img)
-plt.subplot(122)
-plt.axis('off')
-plt.imshow(undist)
-plt.show()
 ```
 
 
@@ -124,15 +91,6 @@ I verified that my perspective transform was working as expected by drawing the 
 warped = warp(undist)
 undist1 = draw_perspective(undist)
 warped1 = draw_perspective(warped, True)
-
-plt.figure(figsize=(11.5,8))
-plt.subplot(121)
-plt.axis('off')
-plt.imshow(undist1)
-plt.subplot(122)
-plt.axis('off')
-plt.imshow(warped1)
-plt.show()
 ```
 
 
@@ -140,20 +98,11 @@ plt.show()
 
 
 #### 3. Describe how (and identify where in your code) you used color transforms, gradients or other methods to create a thresholded binary image.  Provide an example of a binary image result.
-I have implemented both gradient and color thresholds, but I have only used the color threshold since the gradient threshold appears to be too noisy in some of the road textures. The final result is a binary image (color thresholding is done in steps at lines #58 through #72 in `image_processing.py`). Here's an example of my output for this edge thresholding:
+I have implemented both gradient and color thresholds, but the gradient threshold appears to be too noisy in some of the road textures and had to be filtered to use only the edges found around the lines detected in the previous frame. The final result is a binary image (color thresholding is done in steps at lines #58 through #72 in `image_processing.py`). In lines #51 through #64 one can see how the edge thresholding is applied and how a binary morphological operator for closing gaps is applied. Here's an example of my output for unfiltered edge thresholding:
 
 
 ```python
 edges = edge_thresh(undist)
-
-plt.figure(figsize=(11.5,8))
-plt.subplot(121)
-plt.axis('off')
-plt.imshow(undist)
-plt.subplot(122)
-plt.axis('off')
-plt.imshow(edges, cmap='gray')
-plt.show()
 ```
 
 
@@ -165,15 +114,6 @@ And here the result from my color threshold:
 
 ```python
 hls = color_thresh(undist)
-
-plt.figure(figsize=(11.5,8))
-plt.subplot(121)
-plt.axis('off')
-plt.imshow(undist)
-plt.subplot(122)
-plt.axis('off')
-plt.imshow(hls, cmap='gray')
-plt.show()
 ```
 
 
@@ -183,15 +123,6 @@ plt.show()
 
 ```python
 bin_warped = warp(hls)
-
-plt.figure(figsize=(11.5,8))
-plt.subplot(121)
-plt.axis('off')
-plt.imshow(warped)
-plt.subplot(122)
-plt.axis('off')
-plt.imshow(bin_warped, cmap='gray')
-plt.show()
 ```
 
 
@@ -216,15 +147,6 @@ right_fit = np.polyfit(righty, rightx, 2)
 
 ```python
 out_img = draw_window_centroids(bin_warped, centroids, leftx, lefty, rightx, righty, margin=100)
-
-plt.figure(figsize=(11.5,8))
-plt.subplot(121)
-plt.axis('off')
-plt.imshow(warped)
-plt.subplot(122)
-plt.axis('off')
-plt.imshow(out_img)
-plt.show()
 ```
 
 
@@ -240,15 +162,6 @@ Here is an example using the fast lane extraction (function `fast_lane_extract()
 # It's now much easier to find line pixels!
 leftx, lefty, rightx, righty = fast_lane_extract(bin_warped, left_fit, right_fit, margin=100)
 fitted = draw_fitted_curve(bin_warped, leftx, lefty, rightx, righty)
-
-plt.figure(figsize=(11.5,8))
-plt.subplot(121)
-plt.axis('off')
-plt.imshow(warped)
-plt.subplot(122)
-plt.axis('off')
-plt.imshow(fitted)
-plt.show()
 ```
 
 
@@ -275,15 +188,6 @@ Once I have the polynomial for the left and right lines, then I can easily draw 
 
 ```python
 lane = draw_lane(undist, left_fit, right_fit)
-
-plt.figure(figsize=(11.5,8))
-plt.subplot(121)
-plt.axis('off')
-plt.imshow(undist)
-plt.subplot(122)
-plt.axis('off')
-plt.imshow(lane)
-plt.show()
 ```
 
 
@@ -298,15 +202,6 @@ radius = curve_rad(leftx, lefty, rightx, righty, lane.shape[0])
 draw_header(lane, 130)
 draw_text(lane, "Radius of Curviture is {0}m".format(radius), pos = (50, 50))
 draw_text(lane, "Vehicle is {0:.2f}m {1} of center".format(abs(diff), from_center), pos = (50, 100))
-
-plt.figure(figsize=(11.5,8))
-plt.subplot(121)
-plt.axis('off')
-plt.imshow(undist)
-plt.subplot(122)
-plt.axis('off')
-plt.imshow(lane)
-plt.show()
 ```
 
 
@@ -319,7 +214,7 @@ plt.show()
 
 #### 1. Provide a link to your final video output.  Your pipeline should perform reasonably well on the entire project video (wobbly lines are ok but no catastrophic failures that would cause the car to drive off the road!).
 
-The processing pipeline was tested on the main project video and it works fine for the first half of it, but the processing crashes in the middle of the video. Here's a [link to my video result](./project_tracked.mp4) and here is a [link to a detailed debug video](./project_detailed.mp4).
+The processing pipeline was tested on the main project video and it works quite well on it. Here's a [link to my video result](https://youtu.be/VzpFCRBDU0A) and here is a [link to a detailed debug video](https://youtu.be/n9aYTpJy5do).
 
 ---
 
@@ -328,6 +223,6 @@ The processing pipeline was tested on the main project video and it works fine f
 
 #### 1. Briefly discuss any problems / issues you faced in your implementation of this project.  Where will your pipeline likely fail?  What could you do to make it more robust?
 
-The current processing pipeline is very simple and relies too heavy on color thresholding, which fails in certain cituations in the simple video. More work will be done to improve the robustness of the line detection. Information from the gradient threshold is not used currently and that could be a very useful resource for detecting the lines. More over no smoothing between different frames is done and that will be incorporated in the future.
+The current processing pipeline is very simple and relies too heavy on color thresholding, which fails in certain situations in the simple video. In these cases, the edge tresholded image is used which is very noisy and a filter based on the curve from the previous frame is applied in order to make the image useful. Even after using that, broken lane lines occasionally make detection of the curve very challenging which results in wobbly curves. For mitigating this problem, each newly detected curve is averaged with the curves from the last five frames.
 
-There are a few weaknesses in the current pipeline and one of them is the static perspective transform, which can cause trouble on hilly roads, e.g. like the ones in the harder challenge video. Another problem with the pipeline is that it relies entirely on lane lines and it fails when the marking is old or non-existing.
+There are a few weaknesses in the current pipeline and one of them is the static perspective transform, which can cause trouble on bumpy or hilly roads, e.g. like the ones in the harder challenge video. A more advanced perspective detection algorithm could improve the robustness of the pipeline a lot. Another problem with the pipeline is that it relies entirely on lane lines and it fails when the marking is old or non-existing. Another obstacle for detecting the lane line can be other vehicles in the same lane in front of the camera which will prevent extracting the useful features. In general the handcrafted features could fail in certain situations and a deep learning approach might prove to be useful in finding more general features for lane detection.

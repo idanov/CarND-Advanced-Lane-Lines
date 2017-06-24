@@ -1,4 +1,5 @@
 import cv2
+import os
 import numpy as np
 import glob
 import pickle
@@ -31,11 +32,16 @@ for i, fname in enumerate(images):
         imgpoints.append(corners)
         # Save images with chessboard corners drawn on
         img = cv2.drawChessboardCorners(img, (chess_cols, chess_rows), corners, ret)
-        write_fname = './camera_cal/corners_found' + str(i+1) + '.jpg'
+        write_fname = './camera_cal/corners_found_' + os.path.basename(fname)
         cv2.imwrite(write_fname, img)
 
 # Calibrate camera with collected corners
 ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(objpoints, imgpoints, gray.shape[::-1], None, None)
+
+img = cv2.imread('./camera_cal/calibration1.jpg', cv2.IMREAD_COLOR)
+img = cv2.undistort(img, mtx, dist, None, mtx)
+write_fname = './camera_cal/undist_calibration1.jpg'
+cv2.imwrite(write_fname, img)
 
 camera_cal = {}
 camera_cal["mtx"] = mtx

@@ -52,7 +52,7 @@ def edge_thresh(img):
     # 1) Preprocess image for edge detection (convert to grayscale and blur it)
     gray = preprocess_for_sobel(img)
     # 2) Perform sobel and directional thresholding
-    gradx = abs_sobel_thresh(gray, orient='x', sobel_kernel=15, thresh=(10, 255))
+    gradx = abs_sobel_thresh(gray, orient='x', sobel_kernel=15, thresh=(20, 255))
     grady = abs_sobel_thresh(gray, orient='y', sobel_kernel=15, thresh=(20, 255))
     dir_binary = dir_threshold(gray, sobel_kernel=15, thresh=(0.35, 1.25))
     # 3) Close morphologically gradx and grady
@@ -65,9 +65,9 @@ def edge_thresh(img):
 
 def color_thresh(img):
     # 1) Select yellow pixels
-    hls_yellow = hls_select(img, low_thresh=(0, 100, 140), high_thresh=(35, 255, 255))
+    hls_yellow = hls_select(img, low_thresh=(0, 100, 100), high_thresh=(35, 255, 255))
     # 2) Select white pixels
-    hls_white = hls_select(img, low_thresh=(130, 100, 140), high_thresh=(180, 255, 255))
+    hls_white = hls_select(img, low_thresh=(130, 100, 100), high_thresh=(180, 255, 255))
     # 3) Merge yellow and white pixels
     hls = hls_yellow | hls_white
     # 4) Close gaps by applying a morpohological operator
